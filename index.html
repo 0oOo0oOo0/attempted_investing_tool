@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>University Reconciliation Report - Upload</title>
+  <title>Investment Analysis Tool - Upload</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="floatbar">University Reconciliation Report</div>
+  <div class="floatbar">Investment Analysis Tool</div>
 
   <div class="content-wrapper">
     <div class="sidebar-left">
@@ -23,31 +23,33 @@
 
     <div class="main-content">
       <div class="form-container">
-        <label for="staff">Select Your Name:</label>
-        <select id="staff">
-          <option value="">-- Select Name --</option>
-          <option>John Smith</option>
-          <option>Jane Doe</option>
-          <option>Dr. Allen</option>
-        </select>
 
-        <div id="upload-section" style="display: none;">
-          <label for="file-upload">Upload Excel File:</label>
-          <input type="file" id="file-upload" accept=".xlsx">
-        </div>
+        <label for="etf-upload">Upload ETF Excel File:</label>
+        <input type="file" id="etf-upload" accept=".xlsx">
 
-        <div id="date-section" style="display: none;">
-          <label for="start-date">Start Date:</label>
-          <input type="date" id="start-date">
-
-          <label for="end-date">End Date:</label>
-          <input type="date" id="end-date">
-        </div>
+        <label for="security-upload">Upload Security Excel File:</label>
+        <input type="file" id="security-upload" accept=".xlsx">
 
         <div class="button-group">
           <button id="run-button" disabled>Run</button>
           <button id="clear-button">Clear</button>
         </div>
+
+        <div id="results-section" style="display: none; margin-top: 30px;">
+          <h3>Analysis Results</h3>
+          <table id="results-table" style="width:100%; border-collapse: collapse; border: 1px solid #666;">
+            <thead>
+              <tr>
+                <th style="border: 1px solid #666; padding: 8px;">Security</th>
+                <th style="border: 1px solid #666; padding: 8px;">Average Return</th>
+                <th style="border: 1px solid #666; padding: 8px;">Variance</th>
+                <th style="border: 1px solid #666; padding: 8px;">Standard Deviation</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
       </div>
     </div>
 
@@ -55,53 +57,49 @@
   </div>
 
   <script>
-    const staffSelect = document.getElementById('staff');
-    const uploadSection = document.getElementById('upload-section');
-    const dateSection = document.getElementById('date-section');
-    const fileUpload = document.getElementById('file-upload');
-    const startDate = document.getElementById('start-date');
-    const endDate = document.getElementById('end-date');
+    const etfUpload = document.getElementById('etf-upload');
+    const securityUpload = document.getElementById('security-upload');
     const runButton = document.getElementById('run-button');
     const clearButton = document.getElementById('clear-button');
-
-    staffSelect.addEventListener('change', () => {
-      if (staffSelect.value) {
-        uploadSection.style.display = 'block';
-      } else {
-        uploadSection.style.display = 'none';
-        dateSection.style.display = 'none';
-        runButton.disabled = true;
-      }
-    });
-
-    fileUpload.addEventListener('change', () => {
-      if (fileUpload.files.length > 0) {
-        dateSection.style.display = 'block';
-      } else {
-        dateSection.style.display = 'none';
-        runButton.disabled = true;
-      }
-    });
+    const resultsSection = document.getElementById('results-section');
+    const resultsTableBody = document.querySelector('#results-table tbody');
 
     function checkEnableRun() {
-      if (startDate.value && endDate.value) {
+      if (etfUpload.files.length > 0 && securityUpload.files.length > 0) {
         runButton.disabled = false;
       } else {
         runButton.disabled = true;
       }
     }
 
-    startDate.addEventListener('change', checkEnableRun);
-    endDate.addEventListener('change', checkEnableRun);
+    etfUpload.addEventListener('change', checkEnableRun);
+    securityUpload.addEventListener('change', checkEnableRun);
 
     clearButton.addEventListener('click', () => {
-      staffSelect.value = "";
-      uploadSection.style.display = 'none';
-      dateSection.style.display = 'none';
+      etfUpload.value = "";
+      securityUpload.value = "";
       runButton.disabled = true;
-      fileUpload.value = "";
-      startDate.value = "";
-      endDate.value = "";
+      resultsSection.style.display = 'none';
+      resultsTableBody.innerHTML = "";
+    });
+
+    runButton.addEventListener('click', () => {
+      // For now, we just show the results table with placeholder data.
+      resultsTableBody.innerHTML = `
+        <tr>
+          <td>ETF</td>
+          <td>...</td>
+          <td>...</td>
+          <td>...</td>
+        </tr>
+        <tr>
+          <td>Security</td>
+          <td>...</td>
+          <td>...</td>
+          <td>...</td>
+        </tr>
+      `;
+      resultsSection.style.display = 'block';
     });
   </script>
 </body>
