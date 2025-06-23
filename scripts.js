@@ -27,17 +27,21 @@ clearButton.addEventListener('click', () => {
 runButton.addEventListener('click', () => {
   resultsTableBody.innerHTML = `
     <tr>
-      <td>ETF</td>
-      <td>...</td>
+      <td>Average Return</td>
       <td>...</td>
       <td>...</td>
     </tr>
     <tr>
-      <td>Security</td>
+      <td>Variance</td>
       <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <td>Standard Deviation</td>
       <td>...</td>
       <td>...</td>
     </tr>
   `;
   resultsSection.style.display = 'block';
 });
+
