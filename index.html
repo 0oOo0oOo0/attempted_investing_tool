@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Investment Analysis Tool - Upload</title>
   <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
   <div class="floatbar">Investment Analysis Tool</div>
@@ -12,7 +13,7 @@
   <div class="content-wrapper">
     <div class="sidebar-left">
       <h2>Navigation</h2>
-      <ul style="padding-left: 20px;">
+      <ul>
         <li>Home</li>
         <li>Professors</li>
         <li>Staff</li>
@@ -23,7 +24,6 @@
 
     <div class="main-content">
       <div class="form-container">
-
         <label for="etf-upload">Upload ETF Excel File:</label>
         <input type="file" id="etf-upload" accept=".xlsx,.csv">
 
@@ -37,24 +37,23 @@
 
         <div id="results-section" style="display: none; margin-top: 30px;">
           <h3>Analysis Results</h3>
-          <table id="results-table" style="width:100%; border-collapse: collapse; border: 1px solid #666;">
+          <table id="results-table">
             <thead>
               <tr>
-                <th style="border: 1px solid #666; padding: 8px;">Statistic</th>
-                <th style="border: 1px solid #666; padding: 8px;">ETF</th>
-                <th style="border: 1px solid #666; padding: 8px;">Security</th>
+                <th>Statistic</th>
+                <th>ETF</th>
+                <th>Security</th>
               </tr>
             </thead>
             <tbody></tbody>
           </table>
         </div>
-
       </div>
     </div>
 
     <div class="sidebar-right"></div>
   </div>
 
-<script src="scripts.js"></script>
+  <script src="scripts.js"></script>
 </body>
 </html>
