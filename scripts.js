@@ -88,7 +88,7 @@ function calculateAverageReturn(data) {
   return count > 0 ? sum / count : 0;
 }
 
-// Helper function to format decimal as percentage string
-function formatPercent(decimal) {
-  return (decimal * 100).toFixed(2) + "%";
+// Updated helper: no longer multiply by 100
+function formatPercent(value) {
+  return value.toFixed(2) + "%";
 }
