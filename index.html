@@ -34,15 +34,24 @@
           <button id="run-button" disabled>Run</button>
           <button id="clear-button">Clear</button>
         </div>
-
         <div id="results-section" style="display: none; margin-top: 30px;">
-          <h3>Analysis Results</h3>
-          <table id="results-table">
+          <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 10px;">
+            <h3 style="margin: 0;">Analysis Results</h3>
+            <label style="display: flex; align-items: center; gap: 5px;">
+              <input type="checkbox" id="decimal-checkbox" checked />
+              Decimal
+            </label>
+            <label style="display: flex; align-items: center; gap: 5px;">
+              <input type="checkbox" id="percentage-checkbox" />
+              Percentage
+            </label>
+          </div>
+          <table id="results-table" style="width:100%; border-collapse: collapse; border: 1px solid #666;">
             <thead>
               <tr>
-                <th>Statistic</th>
-                <th>ETF</th>
-                <th>Security</th>
+                <th style="border: 1px solid #666; padding: 8px;">Statistic</th>
+                <th style="border: 1px solid #666; padding: 8px;">ETF</th>
+                <th style="border: 1px solid #666; padding: 8px;">Security</th>
               </tr>
             </thead>
             <tbody></tbody>
