@@ -9,7 +9,7 @@ let etfData = null;
 let securityData = null;
 
 function checkEnableRun() {
-  if (etfUpload.files.length > 0 && securityUpload.files.length > 0) {
+  if (etfData && securityData) {
     runButton.disabled = false;
   } else {
     runButton.disabled = true;
@@ -17,11 +17,11 @@ function checkEnableRun() {
 }
 
 etfUpload.addEventListener('change', (e) => {
-  readExcelFile(e.target.files[0], (data) => { etfData = data; checkEnableRun(); });
+  readCSVFile(e.target.files[0], (data) => { etfData = data; checkEnableRun(); });
 });
 
 securityUpload.addEventListener('change', (e) => {
-  readExcelFile(e.target.files[0], (data) => { securityData = data; checkEnableRun(); });
+  readCSVFile(e.target.files[0], (data) => { securityData = data; checkEnableRun(); });
 });
 
 clearButton.addEventListener('click', () => {
@@ -58,17 +58,14 @@ runButton.addEventListener('click', () => {
   resultsSection.style.display = 'block';
 });
 
-function readExcelFile(file, callback) {
+function readCSVFile(file, callback) {
   const reader = new FileReader();
   reader.onload = (e) => {
-    const data = new Uint8Array(e.target.result);
-    const workbook = XLSX.read(data, { type: 'array' });
-    const firstSheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[firstSheetName];
-    const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-    callback(json);
+    const text = e.target.result;
+    const rows = text.trim().split('\n').map(row => row.split(','));
+    callback(rows);
   };
-  reader.readAsArrayBuffer(file);
+  reader.readAsText(file);
 }
 
 function calculateAverageReturn(data) {
@@ -77,12 +74,15 @@ function calculateAverageReturn(data) {
   let sum = 0;
   let count = 0;
 
-  for (let i = 1; i < data.length; i++) {  // starting at row 2 (index 1)
-    const row = data[i];
-    const value = parseFloat(row[6]);  // column G is index 6
-    if (!isNaN(value)) {
-      sum += value;
-      count++;
+  for (let i = 1; i < data.length; i++) {  // start from row 2
+    let value = data[i][6];  // column G (index 6)
+    if (value) {
+      value = value.replace(/[^0-9.\-]+/g, '');  // remove non-numeric characters
+      const num = parseFloat(value);
+      if (!isNaN(num)) {
+        sum += num;
+        count++;
+      }
     }
   }
   return count > 0 ? sum / count : 0;
