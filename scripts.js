@@ -77,9 +77,10 @@ function calculateAverageReturn(data) {
   for (let i = 1; i < data.length; i++) {  // start from row 2
     let value = data[i][6];  // column G (index 6)
     if (value) {
-      value = value.replace(/[^0-9.\-]+/g, '');  // remove non-numeric characters
-      const num = parseFloat(value);
+      value = value.replace(/[^0-9.\-]+/g, '');
+      let num = parseFloat(value);
       if (!isNaN(num)) {
+        if (num > 1) num = num / 100;  // Normalize if necessary
         sum += num;
         count++;
       }
@@ -88,7 +89,6 @@ function calculateAverageReturn(data) {
   return count > 0 ? sum / count : 0;
 }
 
-// Updated helper: no longer multiply by 100
-function formatPercent(value) {
-  return value.toFixed(2) + "%";
+function formatPercent(decimal) {
+  return (decimal * 100).toFixed(2) + "%";
 }
