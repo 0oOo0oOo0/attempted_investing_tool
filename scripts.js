@@ -53,13 +53,24 @@ function calculateStandardDeviation(variance) {
   return Math.sqrt(variance);
 }
 
-function calculateCorrelation(etfReturns, etfAvg, secReturns, secAvg, etfStd, secStd) {
+function calculateCovariance(etfReturns, etfAvg, secReturns, secAvg) {
   let sumProduct = 0;
   for (let i = 0; i < etfReturns.length; i++) {
-    sumProduct += (etfReturns[i] - etfAvg) * (securityReturns[i] - secAvg);
+    sumProduct += (etfReturns[i] - etfAvg) * (secReturns[i] - secAvg);
   }
-  const covariance = sumProduct / etfReturns.length;
+  return sumProduct / etfReturns.length;
+}
+
+function calculateCorrelation(covariance, etfStd, secStd) {
   return covariance / (etfStd * secStd);
+}
+
+function calculateMinVarianceWeights(etfVar, secVar, covariance) {
+  const numerator = secVar - covariance;
+  const denominator = etfVar + secVar - 2 * covariance;
+  const etfWeight = numerator / denominator;
+  const secWeight = 1 - etfWeight;
+  return { etfWeight, secWeight };
 }
 
 function formatDecimal(value) {
@@ -72,7 +83,7 @@ function formatPercentage(value) {
 
 function renderResultsTable(format) {
   if (!computedStats) return;
-  const { etfAvg, etfVar, etfStd, secAvg, secVar, secStd, correlation } = computedStats;
+  const { etfAvg, etfVar, etfStd, secAvg, secVar, secStd, covariance, correlation, etfWeight, secWeight } = computedStats;
   const fmt = format === 'percentage' ? formatPercentage : formatDecimal;
 
   resultsTableBody.innerHTML = `
@@ -94,6 +105,15 @@ function renderResultsTable(format) {
     <tr>
       <td>Correlation Coefficient</td>
       <td colspan="2">${correlation.toFixed(4)}</td>
+    </tr>
+    <tr>
+      <td>Covariance</td>
+      <td colspan="2">${covariance.toFixed(4)}</td>
+    </tr>
+    <tr>
+      <td>Minimum Variance Portfolio</td>
+      <td>${formatPercentage(etfWeight)}</td>
+      <td>${formatPercentage(secWeight)}</td>
     </tr>
   `;
   resultsSection.style.display = 'block';
@@ -145,9 +165,11 @@ runButton.addEventListener('click', () => {
   const secVar = calculateVariance(securityReturns, secAvg);
   const secStd = calculateStandardDeviation(secVar);
 
-  const correlation = calculateCorrelation(etfReturns, etfAvg, securityReturns, secAvg, etfStd, secStd);
+  const covariance = calculateCovariance(etfReturns, etfAvg, securityReturns, secAvg);
+  const correlation = calculateCorrelation(covariance, etfStd, secStd);
+  const { etfWeight, secWeight } = calculateMinVarianceWeights(etfVar, secVar, covariance);
 
-  computedStats = { etfAvg, etfVar, etfStd, secAvg, secVar, secStd, correlation };
+  computedStats = { etfAvg, etfVar, etfStd, secAvg, secVar, secStd, covariance, correlation, etfWeight, secWeight };
 
   renderResultsTable(decimalCheckbox.checked ? 'decimal' : 'percentage');
 });
