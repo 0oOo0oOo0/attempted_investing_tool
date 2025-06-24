@@ -41,8 +41,8 @@ runButton.addEventListener('click', () => {
   resultsTableBody.innerHTML = `
     <tr>
       <td>Average Return</td>
-      <td>${(etfAvgReturn * 100).toFixed(2)}%</td>
-      <td>${(securityAvgReturn * 100).toFixed(2)}%</td>
+      <td>${formatPercent(etfAvgReturn)}</td>
+      <td>${formatPercent(securityAvgReturn)}</td>
     </tr>
     <tr>
       <td>Variance</td>
@@ -57,7 +57,6 @@ runButton.addEventListener('click', () => {
   `;
   resultsSection.style.display = 'block';
 });
-
 
 function readCSVFile(file, callback) {
   const reader = new FileReader();
@@ -87,4 +86,9 @@ function calculateAverageReturn(data) {
     }
   }
   return count > 0 ? sum / count : 0;
+}
+
+// Helper function to format decimal as percentage string
+function formatPercent(decimal) {
+  return (decimal * 100).toFixed(2) + "%";
 }
