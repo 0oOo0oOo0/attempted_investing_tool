@@ -9,8 +9,6 @@ const percentageCheckbox = document.getElementById('percentage-checkbox');
 
 let etfReturns = [];
 let securityReturns = [];
-
-// Store computed stats so we can re-render table when toggling format
 let computedStats = null;
 
 function parseCSV(text) {
@@ -43,34 +41,38 @@ function extractReturns(data) {
 }
 
 function calculateAverageReturn(returns) {
-  const sum = returns.reduce((a, b) => a + b, 0);
-  return sum / returns.length;
+  return returns.reduce((a, b) => a + b, 0) / returns.length;
 }
 
-function calculateVariance(returns, averageReturn) {
-  const squaredDiffs = returns.map(ret => Math.pow(ret - averageReturn, 2));
-  const sum = squaredDiffs.reduce((a, b) => a + b, 0);
-  return sum / returns.length;
+function calculateVariance(returns, avg) {
+  const sumSquaredDiff = returns.reduce((sum, ret) => sum + Math.pow(ret - avg, 2), 0);
+  return sumSquaredDiff / returns.length;
 }
 
 function calculateStandardDeviation(variance) {
   return Math.sqrt(variance);
 }
 
-// Formatting functions:
+function calculateCorrelation(etfReturns, etfAvg, secReturns, secAvg, etfStd, secStd) {
+  let sumProduct = 0;
+  for (let i = 0; i < etfReturns.length; i++) {
+    sumProduct += (etfReturns[i] - etfAvg) * (securityReturns[i] - secAvg);
+  }
+  const covariance = sumProduct / etfReturns.length;
+  return covariance / (etfStd * secStd);
+}
+
 function formatDecimal(value) {
   return value.toFixed(4);
 }
+
 function formatPercentage(value) {
   return (value * 100).toFixed(2) + '%';
 }
 
-// Render the results table depending on format type
 function renderResultsTable(format) {
   if (!computedStats) return;
-
-  const { etfAvg, etfVar, etfStd, secAvg, secVar, secStd } = computedStats;
-
+  const { etfAvg, etfVar, etfStd, secAvg, secVar, secStd, correlation } = computedStats;
   const fmt = format === 'percentage' ? formatPercentage : formatDecimal;
 
   resultsTableBody.innerHTML = `
@@ -89,6 +91,10 @@ function renderResultsTable(format) {
       <td>${fmt(etfStd)}</td>
       <td>${fmt(secStd)}</td>
     </tr>
+    <tr>
+      <td>Correlation Coefficient</td>
+      <td colspan="2">${correlation.toFixed(4)}</td>
+    </tr>
   `;
   resultsSection.style.display = 'block';
 }
@@ -101,8 +107,7 @@ etfUpload.addEventListener('change', () => {
   if (etfUpload.files.length > 0) {
     const reader = new FileReader();
     reader.onload = (e) => {
-      const data = parseCSV(e.target.result);
-      etfReturns = extractReturns(data);
+      etfReturns = extractReturns(parseCSV(e.target.result));
       checkEnableRun();
     };
     reader.readAsText(etfUpload.files[0]);
@@ -113,8 +118,7 @@ securityUpload.addEventListener('change', () => {
   if (securityUpload.files.length > 0) {
     const reader = new FileReader();
     reader.onload = (e) => {
-      const data = parseCSV(e.target.result);
-      securityReturns = extractReturns(data);
+      securityReturns = extractReturns(parseCSV(e.target.result));
       checkEnableRun();
     };
     reader.readAsText(securityUpload.files[0]);
@@ -141,19 +145,18 @@ runButton.addEventListener('click', () => {
   const secVar = calculateVariance(securityReturns, secAvg);
   const secStd = calculateStandardDeviation(secVar);
 
-  computedStats = { etfAvg, etfVar, etfStd, secAvg, secVar, secStd };
+  const correlation = calculateCorrelation(etfReturns, etfAvg, securityReturns, secAvg, etfStd, secStd);
 
-  // Render with current checkbox state
+  computedStats = { etfAvg, etfVar, etfStd, secAvg, secVar, secStd, correlation };
+
   renderResultsTable(decimalCheckbox.checked ? 'decimal' : 'percentage');
 });
 
-// Enforce mutual exclusivity of checkboxes & update table on change
 decimalCheckbox.addEventListener('change', () => {
   if (decimalCheckbox.checked) {
     percentageCheckbox.checked = false;
     renderResultsTable('decimal');
   } else {
-    // Prevent no selection by forcing percentage checked
     percentageCheckbox.checked = true;
   }
 });
@@ -163,7 +166,6 @@ percentageCheckbox.addEventListener('change', () => {
     decimalCheckbox.checked = false;
     renderResultsTable('percentage');
   } else {
-    // Prevent no selection by forcing decimal checked
     decimalCheckbox.checked = true;
   }
 });
