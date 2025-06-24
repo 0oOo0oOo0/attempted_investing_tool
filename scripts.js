@@ -8,7 +8,6 @@ const resultsTableBody = document.querySelector('#results-table tbody');
 // Utility function to parse CSV text into array of rows
 function parseCSV(text) {
     return text.trim().split('\n').map(row => {
-        // handle quoted commas correctly
         const values = [];
         let current = '';
         let insideQuotes = false;
@@ -47,6 +46,10 @@ function calculateVariance(returns, averageReturn) {
     const squaredDiffs = returns.map(ret => Math.pow(ret - averageReturn, 2));
     const sum = squaredDiffs.reduce((a, b) => a + b, 0);
     return sum / returns.length;
+}
+
+function calculateStandardDeviation(variance) {
+    return Math.sqrt(variance);
 }
 
 function formatPercentage(value) {
@@ -98,9 +101,11 @@ clearButton.addEventListener('click', () => {
 runButton.addEventListener('click', () => {
     const etfAvg = calculateAverageReturn(etfReturns);
     const etfVar = calculateVariance(etfReturns, etfAvg);
+    const etfStd = calculateStandardDeviation(etfVar);
 
     const secAvg = calculateAverageReturn(securityReturns);
     const secVar = calculateVariance(securityReturns, secAvg);
+    const secStd = calculateStandardDeviation(secVar);
 
     resultsTableBody.innerHTML = `
         <tr>
@@ -115,8 +120,8 @@ runButton.addEventListener('click', () => {
         </tr>
         <tr>
             <td>Standard Deviation</td>
-            <td>...</td>
-            <td>...</td>
+            <td>${formatPercentage(etfStd)}</td>
+            <td>${formatPercentage(secStd)}</td>
         </tr>
     `;
     resultsSection.style.display = 'block';
