@@ -41,8 +41,8 @@ runButton.addEventListener('click', () => {
   resultsTableBody.innerHTML = `
     <tr>
       <td>Average Return</td>
-      <td>${etfAvgReturn.toFixed(4)}</td>
-      <td>${securityAvgReturn.toFixed(4)}</td>
+      <td>${(etfAvgReturn * 100).toFixed(2)}%</td>
+      <td>${(securityAvgReturn * 100).toFixed(2)}%</td>
     </tr>
     <tr>
       <td>Variance</td>
@@ -57,6 +57,7 @@ runButton.addEventListener('click', () => {
   `;
   resultsSection.style.display = 'block';
 });
+
 
 function readCSVFile(file, callback) {
   const reader = new FileReader();
