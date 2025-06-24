@@ -17,11 +17,17 @@ function checkEnableRun() {
 }
 
 etfUpload.addEventListener('change', (e) => {
-  readCSVFile(e.target.files[0], (data) => { etfData = data; checkEnableRun(); });
+  readCSVFile(e.target.files[0], (data) => { 
+    etfData = data; 
+    checkEnableRun(); 
+  });
 });
 
 securityUpload.addEventListener('change', (e) => {
-  readCSVFile(e.target.files[0], (data) => { securityData = data; checkEnableRun(); });
+  readCSVFile(e.target.files[0], (data) => { 
+    securityData = data; 
+    checkEnableRun(); 
+  });
 });
 
 clearButton.addEventListener('click', () => {
@@ -62,7 +68,18 @@ function readCSVFile(file, callback) {
   const reader = new FileReader();
   reader.onload = (e) => {
     const text = e.target.result;
-    const rows = text.trim().split('\n').map(row => row.split(','));
+    const rows = text.trim().split('\n').map(row => {
+      // Handle commas inside quoted strings (like "1,222.29")
+      // Simple CSV parser for your data:
+      const pattern = /(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|([^\",]+))/g;
+      let match;
+      const result = [];
+      while ((match = pattern.exec(row)) !== null) {
+        // match[1] is quoted field, match[2] is unquoted
+        result.push(match[1] ? match[1].replace(/""/g, '"') : match[2]);
+      }
+      return result;
+    });
     callback(rows);
   };
   reader.readAsText(file);
@@ -74,13 +91,13 @@ function calculateAverageReturn(data) {
   let sum = 0;
   let count = 0;
 
-  for (let i = 1; i < data.length; i++) {  // start from row 2
+  for (let i = 1; i < data.length; i++) {  // skip header row
     let value = data[i][6];  // column G (index 6)
     if (value) {
-      value = value.replace(/[^0-9.\-]+/g, '');
+      value = value.replace('%', '').trim();  // remove % sign
       let num = parseFloat(value);
       if (!isNaN(num)) {
-        if (num > 1) num = num / 100;  // Normalize if necessary
+        num = num / 100;  // convert percentage string to decimal
         sum += num;
         count++;
       }
